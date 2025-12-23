@@ -1,0 +1,6 @@
+@ImeCrawler.Api_HostAddress = http://localhost:5041
+
+GET {{ImeCrawler.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
