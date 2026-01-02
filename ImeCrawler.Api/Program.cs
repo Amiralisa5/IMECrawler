@@ -22,12 +22,21 @@ builder.Services.AddHttpClient<ImeAuctionClient>()
         .HandleTransientHttpError()
         .WaitAndRetryAsync(3, i => TimeSpan.FromSeconds(2 * i)));
 
+builder.Services.AddHttpClient<ImeCategoryService>()
+    .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+    .AddPolicyHandler(HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(3, i => TimeSpan.FromSeconds(2 * i)));
+
 // Crawler pipeline
 builder.Services.AddSingleton<ImeAuctionResponseParser>();
 builder.Services.AddSingleton<HtmlReportRenderer>();
 builder.Services.AddSingleton<IHtmlToImage, PlaywrightHtmlToImage>();
 builder.Services.AddScoped<ImeCrawlOrchestrator>();
 builder.Services.AddScoped<CrawlScheduler>();
+
+// Background service for daily crawling
+builder.Services.AddHostedService<DailyCrawlService>();
 
 // Background service for daily crawling
 builder.Services.AddHostedService<DailyCrawlService>();
