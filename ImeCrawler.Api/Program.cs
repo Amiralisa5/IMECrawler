@@ -27,6 +27,10 @@ builder.Services.AddSingleton<ImeAuctionResponseParser>();
 builder.Services.AddSingleton<HtmlReportRenderer>();
 builder.Services.AddSingleton<IHtmlToImage, PlaywrightHtmlToImage>();
 builder.Services.AddScoped<ImeCrawlOrchestrator>();
+builder.Services.AddScoped<CrawlScheduler>();
+
+// Background service for daily crawling
+builder.Services.AddHostedService<DailyCrawlService>();
 
 var app = builder.Build();
 
