@@ -1,4 +1,3 @@
-using System.Text.Json;
 using ImeCrawler.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +13,6 @@ public sealed class DailyCrawlService : BackgroundService
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<DailyCrawlService> _logger;
     private readonly TimeSpan _runTime;
-    private const string DebugLogPath = @"c:\Users\Amirali\source\repos\ImeCrawler\IMECrawler\.cursor\debug.log";
 
     public DailyCrawlService(
         IServiceProvider serviceProvider,
@@ -98,26 +96,6 @@ public sealed class DailyCrawlService : BackgroundService
         var offersExist = await db.ImeOffers
             .AnyAsync(x => x.Day == todayGregorian && x.MainGroupId == 0, ct);
 
-        #region agent log
-        System.IO.File.AppendAllText(DebugLogPath,
-            JsonSerializer.Serialize(new
-            {
-                sessionId = "debug-session",
-                runId = "pre-fix",
-                hypothesisId = "H5",
-                location = "DailyCrawlService.RunDailyCrawlAsync:duplicate-check",
-                message = "Duplicate detection before crawl",
-                data = new
-                {
-                    jalali = todayJalali,
-                    gregorian = todayGregorian.ToString("yyyy-MM-dd"),
-                    snapshotExists,
-                    offersExist
-                },
-                timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-            }) + Environment.NewLine);
-        #endregion
-
         if (snapshotExists || offersExist)
         {
             if (snapshotExists)
@@ -185,19 +163,5 @@ public sealed class DailyCrawlService : BackgroundService
         }
 
         _logger.LogInformation("Daily crawl completed. Total offers inserted: {TotalInserted}", totalInserted);
-
-        #region agent log
-        System.IO.File.AppendAllText(DebugLogPath,
-            JsonSerializer.Serialize(new
-            {
-                sessionId = "debug-session",
-                runId = "pre-fix",
-                hypothesisId = "H5",
-                location = "DailyCrawlService.RunDailyCrawlAsync:complete",
-                message = "Daily crawl completed",
-                data = new { totalInserted },
-                timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-            }) + Environment.NewLine);
-        #endregion
     }
 }

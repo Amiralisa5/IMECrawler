@@ -1,4 +1,3 @@
-using System.Text.Json;
 using ImeCrawler.Api.Data;
 using ImeCrawler.Api.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +12,6 @@ public sealed class ImeCrawlOrchestrator
     private readonly IHtmlToImage _htmlToImage;
     private readonly AppDbContext _db;
     private readonly IWebHostEnvironment _env;
-    private const string DebugLogPath = @"c:\Users\Amirali\source\repos\ImeCrawler\IMECrawler\.cursor\debug.log";
 
     public ImeCrawlOrchestrator(
         ImeAuctionClient client,
@@ -39,53 +37,11 @@ public sealed class ImeCrawlOrchestrator
         int m, int c, int s, int p,
         CancellationToken ct)
     {
-        #region agent log
-        System.IO.File.AppendAllText(DebugLogPath,
-            JsonSerializer.Serialize(new
-            {
-                sessionId = "debug-session",
-                runId = "pre-fix",
-                hypothesisId = "H4",
-                location = "ImeCrawlOrchestrator.CrawlOneDayAsync:start",
-                message = "Starting crawl",
-                data = new
-                {
-                    dayGregorian = dayGregorian.ToString("yyyy-MM-dd"),
-                    jalaliDate,
-                    mainGroupId,
-                    mainGroupName,
-                    m,
-                    c,
-                    s,
-                    p
-                },
-                timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-            }) + Environment.NewLine);
-        #endregion
-
         // 1) fetch
         var raw = await _client.FetchAsync(jalaliDate, m, c, s, p, ct);
 
         // 2) parse
         var parsed = _parser.Parse(raw);
-
-        #region agent log
-        System.IO.File.AppendAllText(DebugLogPath,
-            JsonSerializer.Serialize(new
-            {
-                sessionId = "debug-session",
-                runId = "pre-fix",
-                hypothesisId = "H4",
-                location = "ImeCrawlOrchestrator.CrawlOneDayAsync:parse",
-                message = "Parsed offers",
-                data = new
-                {
-                    parsedCount = parsed.Count,
-                    firstPk = parsed.FirstOrDefault()?.SourcePk
-                },
-                timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-            }) + Environment.NewLine);
-        #endregion
 
         // 3) store rows (sorted later for screenshot)
         // If parse failed, we still store one row with raw payload.
@@ -142,25 +98,6 @@ public sealed class ImeCrawlOrchestrator
             ImageUrl = snapshotUrl
         });
         await _db.SaveChangesAsync(ct);
-
-        #region agent log
-        System.IO.File.AppendAllText(DebugLogPath,
-            JsonSerializer.Serialize(new
-            {
-                sessionId = "debug-session",
-                runId = "pre-fix",
-                hypothesisId = "H5",
-                location = "ImeCrawlOrchestrator.CrawlOneDayAsync:store",
-                message = "Stored crawl results",
-                data = new
-                {
-                    entitiesCount = entities.Count,
-                    inserted,
-                    snapshotUrl
-                },
-                timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-            }) + Environment.NewLine);
-        #endregion
 
         return (inserted, snapshotUrl);
     }
