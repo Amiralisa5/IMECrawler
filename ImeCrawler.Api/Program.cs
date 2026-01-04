@@ -38,9 +38,6 @@ builder.Services.AddScoped<CrawlScheduler>();
 // Background service for daily crawling
 builder.Services.AddHostedService<DailyCrawlService>();
 
-// Background service for daily crawling
-builder.Services.AddHostedService<DailyCrawlService>();
-
 var app = builder.Build();
 
 app.UseSwagger();

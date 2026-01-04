@@ -16,7 +16,6 @@ public sealed class ImeCategoryService
         _http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0");
         _http.DefaultRequestHeaders.Referrer = new Uri("https://www.ime.co.ir/arze.html");
         _http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        _http.DefaultRequestHeaders.ContentType = new MediaTypeHeaderValue("application/json");
     }
 
     public async Task<IReadOnlyList<CategoryGroup>> GetMainGroupsAsync(CancellationToken ct = default)
@@ -149,4 +148,3 @@ public sealed class ImeCategoryService
         };
     }
 }
-
