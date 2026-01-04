@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace ImeCrawler.Api.Services;
 
@@ -6,6 +7,7 @@ public sealed class ImeAuctionClient
 {
     private readonly HttpClient _http;
 
+    // temp-check
     public ImeAuctionClient(HttpClient http)
     {
         _http = http;
@@ -27,6 +29,22 @@ public sealed class ImeAuctionClient
         using var req = new HttpRequestMessage(HttpMethod.Get, url);
         using var res = await _http.SendAsync(req, ct);
         res.EnsureSuccessStatusCode();
-        return await res.Content.ReadAsStringAsync(ct);
+        var content = await res.Content.ReadAsStringAsync(ct);
+
+        #region agent log
+        System.IO.File.AppendAllText(@"c:\Users\Amirali\source\repos\ImeCrawler\IMECrawler\.cursor\debug.log",
+            JsonSerializer.Serialize(new
+            {
+                sessionId = "debug-session",
+                runId = "pre-fix",
+                hypothesisId = "H3",
+                location = "ImeAuctionClient.FetchAsync",
+                message = "IME fetch response",
+                data = new { url, statusCode = (int)res.StatusCode, length = content?.Length ?? 0 },
+                timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+            }) + Environment.NewLine);
+        #endregion
+
+        return content;
     }
 }
