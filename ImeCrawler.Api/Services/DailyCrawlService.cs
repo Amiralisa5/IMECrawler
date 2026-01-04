@@ -14,7 +14,7 @@ public sealed class DailyCrawlService : BackgroundService
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<DailyCrawlService> _logger;
     private readonly TimeSpan _runTime;
-    private const string DebugLogPath = @"c:\\Users\\Amirali\\source\\repos\\ImeCrawler\\IMECrawler\\.cursor\\debug.log";
+    private const string DebugLogPath = @"c:\Users\Amirali\source\repos\ImeCrawler\IMECrawler\.cursor\debug.log";
 
     public DailyCrawlService(
         IServiceProvider serviceProvider,

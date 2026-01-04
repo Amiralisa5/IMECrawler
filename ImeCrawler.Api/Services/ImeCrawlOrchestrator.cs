@@ -13,7 +13,7 @@ public sealed class ImeCrawlOrchestrator
     private readonly IHtmlToImage _htmlToImage;
     private readonly AppDbContext _db;
     private readonly IWebHostEnvironment _env;
-    private const string DebugLogPath = @"c:\\Users\\Amirali\\source\\repos\\ImeCrawler\\IMECrawler\\.cursor\\debug.log";
+    private const string DebugLogPath = @"c:\Users\Amirali\source\repos\ImeCrawler\IMECrawler\.cursor\debug.log";
 
     public ImeCrawlOrchestrator(
         ImeAuctionClient client,

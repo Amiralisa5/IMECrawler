@@ -6,6 +6,7 @@ namespace ImeCrawler.Api.Services;
 public sealed class ImeAuctionClient
 {
     private readonly HttpClient _http;
+    private const string DebugLogPath = @"c:\Users\Amirali\source\repos\ImeCrawler\IMECrawler\.cursor\debug.log";
 
     // temp-check
     public ImeAuctionClient(HttpClient http)
@@ -32,7 +33,7 @@ public sealed class ImeAuctionClient
         var content = await res.Content.ReadAsStringAsync(ct);
 
         #region agent log
-        System.IO.File.AppendAllText(@"c:\Users\Amirali\source\repos\ImeCrawler\IMECrawler\.cursor\debug.log",
+        System.IO.File.AppendAllText(DebugLogPath,
             JsonSerializer.Serialize(new
             {
                 sessionId = "debug-session",
