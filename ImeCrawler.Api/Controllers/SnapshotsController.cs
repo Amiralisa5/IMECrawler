@@ -21,12 +21,12 @@ public sealed class SnapshotsController : ControllerBase
             q = q.Where(x => x.Day == d).OrderByDescending(x => x.Day).ThenBy(x => x.MainGroupId);
 
         var items = await q.Take(100).ToListAsync(ct);
-        return Ok(items.Select remember => new {
-            remember.Day,
-            remember.MainGroupId,
-            remember.MainGroupName,
-            remember.ImageUrl,
-            remember.CreatedAtUtc
-        });
+        return Ok(items.Select(x => new {
+            x.Day,
+            x.MainGroupId,
+            x.MainGroupName,
+            x.ImageUrl,
+            x.CreatedAtUtc
+        }));
     }
 }
