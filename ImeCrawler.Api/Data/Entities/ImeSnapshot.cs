@@ -8,8 +8,13 @@ public sealed class ImeSnapshot
     public int MainGroupId { get; set; }
     public string MainGroupName { get; set; } = "";
 
-    // Stored in wwwroot, served by app.UseStaticFiles()
-    public string ImageUrl { get; set; } = "";
+    // All stored under wwwroot and served by app.UseStaticFiles().
+    public string ImageUrl { get; set; } = "";   // PNG
+    public string? PdfUrl { get; set; }           // PDF report
+    public string? ExcelUrl { get; set; }         // .xlsx export
+
+    /// <summary>Number of offerings captured for this snapshot (after hall filtering).</summary>
+    public int OfferCount { get; set; }
 
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 }

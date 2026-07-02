@@ -46,6 +46,22 @@ public sealed class PlaywrightHtmlToImage : IHtmlToImage, IAsyncDisposable
         return await page.ScreenshotAsync(new() { FullPage = true, Type = ScreenshotType.Png });
     }
 
+    public async Task<byte[]> RenderPdfAsync(string html, CancellationToken ct)
+    {
+        var browser = await GetBrowserAsync();
+        await using var context = await browser.NewContextAsync();
+        var page = await context.NewPageAsync();
+
+        await page.SetContentAsync(html, new() { WaitUntil = WaitUntilState.NetworkIdle });
+        return await page.PdfAsync(new()
+        {
+            Format = "A4",
+            Landscape = true,
+            PrintBackground = true,
+            Margin = new() { Top = "12mm", Bottom = "12mm", Left = "10mm", Right = "10mm" }
+        });
+    }
+
     public async ValueTask DisposeAsync()
     {
         if (_browser is not null)

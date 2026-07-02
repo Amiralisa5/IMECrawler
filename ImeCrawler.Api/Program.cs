@@ -22,9 +22,13 @@ builder.Services.AddHttpClient<ImeAuctionClient>()
         .HandleTransientHttpError()
         .WaitAndRetryAsync(3, i => TimeSpan.FromSeconds(2 * i)));
 
+// Petrochemical crawl options (Ime section of appsettings.json)
+builder.Services.Configure<ImeOptions>(builder.Configuration.GetSection(ImeOptions.Section));
+
 // Crawler pipeline
 builder.Services.AddSingleton<ImeAuctionResponseParser>();
 builder.Services.AddSingleton<HtmlReportRenderer>();
+builder.Services.AddSingleton<ExcelReportExporter>();
 builder.Services.AddSingleton<IHtmlToImage, PlaywrightHtmlToImage>();
 builder.Services.AddScoped<ImeCrawlOrchestrator>();
 builder.Services.AddScoped<CrawlScheduler>();
