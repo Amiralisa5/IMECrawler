@@ -2,6 +2,7 @@ using ImeCrawler.Api.Data;
 using ImeCrawler.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace ImeCrawler.Api.Controllers;
 
@@ -12,15 +13,46 @@ public sealed class CrawlController : ControllerBase
     private readonly ImeCrawlOrchestrator _orchestrator;
     private readonly CrawlScheduler _scheduler;
     private readonly AppDbContext _db;
+    private readonly ImeOptions _ime;
 
     public CrawlController(
         ImeCrawlOrchestrator orchestrator,
         CrawlScheduler scheduler,
-        AppDbContext db)
+        AppDbContext db,
+        IOptions<ImeOptions> ime)
     {
         _orchestrator = orchestrator;
         _scheduler = scheduler;
         _db = db;
+        _ime = ime.Value;
+    }
+
+    /// <summary>
+    /// Crawl the petrochemical hall for the NEXT day ("عرضه‌های تالار پتروشیمی در روز بعد") and export
+    /// Excel + PDF + PNG. This is what the daily background job runs automatically.
+    /// Example: POST /api/crawl/petrochemical/next-day
+    /// </summary>
+    [HttpPost("petrochemical/next-day")]
+    public async Task<IActionResult> CrawlPetrochemicalNextDay(CancellationToken ct = default)
+    {
+        var iranDate = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(3.5));
+        var greg = iranDate.AddDays(_ime.DaysAhead);
+        var jalali = CrawlScheduler.ToJalali(greg);
+
+        var result = await _orchestrator.CrawlPetrochemicalAsync(greg, jalali, ct);
+        return Ok(new { hall = _ime.MainGroupName, jalali, gregorian = greg.ToString("yyyy-MM-dd"), result });
+    }
+
+    /// <summary>
+    /// Crawl the petrochemical hall for a specific Jalali day and export Excel + PDF + PNG.
+    /// Example: POST /api/crawl/petrochemical/day?jalali=1405/04/08
+    /// </summary>
+    [HttpPost("petrochemical/day")]
+    public async Task<IActionResult> CrawlPetrochemicalDay([FromQuery] string jalali, CancellationToken ct = default)
+    {
+        var greg = CrawlScheduler.FromJalali(jalali);
+        var result = await _orchestrator.CrawlPetrochemicalAsync(greg, jalali, ct);
+        return Ok(new { hall = _ime.MainGroupName, jalali, gregorian = greg.ToString("yyyy-MM-dd"), result });
     }
 
     /// <summary>
@@ -115,7 +147,10 @@ public sealed class CrawlController : ControllerBase
                 day = latestSnapshot.Day.ToString("yyyy-MM-dd"),
                 jalali = CrawlScheduler.ToJalali(latestSnapshot.Day),
                 mainGroupName = latestSnapshot.MainGroupName,
+                offerCount = latestSnapshot.OfferCount,
                 imageUrl = latestSnapshot.ImageUrl,
+                pdfUrl = latestSnapshot.PdfUrl,
+                excelUrl = latestSnapshot.ExcelUrl,
                 createdAt = latestSnapshot.CreatedAtUtc
             } : null
         });

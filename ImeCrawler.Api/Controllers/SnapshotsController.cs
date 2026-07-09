@@ -25,7 +25,10 @@ public sealed class SnapshotsController : ControllerBase
             x.Day,
             x.MainGroupId,
             x.MainGroupName,
+            x.OfferCount,
             x.ImageUrl,
+            x.PdfUrl,
+            x.ExcelUrl,
             x.CreatedAtUtc
         }));
     }

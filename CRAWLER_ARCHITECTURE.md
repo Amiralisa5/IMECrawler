@@ -42,6 +42,21 @@ The `DailyCrawlService` runs automatically:
 
 ### API Endpoints
 
+#### Petrochemical next-day export (primary feature)
+Crawls the petrochemical hall (تالار پتروشیمی) for the **next day** and exports Excel + PDF + PNG.
+This is what the daily background job runs automatically at the scheduled time.
+```http
+POST /api/crawl/petrochemical/next-day
+POST /api/crawl/petrochemical/day?jalali=1405/04/08
+```
+The response includes `offerCount` and the served URLs `excelUrl`, `pdfUrl`, `imageUrl`
+(files live under `wwwroot/reports/ime/...` and are served by static files).
+
+**How the hall filter works:** the request fetches the day's offerings from `auction.ashx`, then keeps
+only rows whose `Talar` (تالار) text contains `Ime:TalarKeyword` (default `پتروشیمی`). If you know the
+numeric group ids for the petrochemical hall, set `Ime:MainGroupId`/`CategoryId`/… to narrow the request
+server-side instead. Config lives in the `Ime` section of `appsettings.json`.
+
 #### Manual Crawl
 ```http
 POST /api/crawl/day?jalali=1404/10/14&mainGroupId=0&mainGroupName=All&m=0&c=0&s=0&p=0
